@@ -1,6 +1,6 @@
 # SecureTaskHub - Teaching Demo for Secure Coding in C# & .NET
 
-A comprehensive teaching solution demonstrating **secure authentication and authorization** in ASP.NET Core 10, designed for a Udemy course on secure coding practices.
+A comprehensive teaching solution demonstrating **secure authentication and authorization** in ASP.NET Core 9, designed for a course on secure coding practices.
 
 ## 🎯 Purpose
 
@@ -20,15 +20,15 @@ The solution comes with pre-seeded accounts:
 
 | Email | Password | Role | Access |
 |-------|----------|------|--------|
-| admin@demo.local | P@ssword1! | Admin | Can view ALL tasks |
-| alice@demo.local | P@ssword1! | User | Can only view her own tasks |
-| bob@demo.local | P@ssword1! | User | Can only view his own tasks |
+| admin@demo.local | P@ssword1 | Admin | Can view ALL tasks |
+| alice@demo.local | P@ssword1 | User | Can only view her own tasks |
+| bob@demo.local | P@ssword1 | User | Can only view his own tasks |
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
-- .NET 10 SDK
+- .NET 9 SDK
 - SQLite (no installation needed)
 - Visual Studio 2022 or VS Code
 - Entity Framework Core Tools
@@ -38,7 +38,7 @@ The solution comes with pre-seeded accounts:
 #### 1. Clone and Restore
 
 ```powershell
-cd "c:\Users\Trevoir\OneDrive\Courses\Secure Coding in C# and .NET\authorization-demo\start"
+cd start
 dotnet restore
 ```
 
@@ -106,6 +106,15 @@ Web will be available at: `https://localhost:7xxx` (check console output)
 ### ⚠️ Intentional Security Gaps (Teaching Points)
 
 All gaps are marked with `// TODO Secure:` comments:
+
+1. **Broken Access Control (OWASP A01:2021)** — `GET /api/tasks/all` returns ALL tasks to any authenticated user. No role or ownership check. File: `SecureTaskHub.Api/Controllers/TasksController.cs`
+2. **Insecure Direct Object Reference (IDOR)** — `GetTaskByIdWithoutAuthorizationAsync` fetches tasks by ID with no ownership validation. File: `SecureTaskHub.Infrastructure/Repositories/TaskItemRepository.cs`
+3. **JWT Secret in Config** — Secret key stored in `appsettings.json` in plaintext with a hardcoded fallback string. File: `SecureTaskHub.Api/appsettings.json`, `SecureTaskHub.Api/Controllers/AuthController.cs`
+4. **JWT Token Expiration Too Long** — Tokens expire in 24 hours with no refresh token mechanism. File: `SecureTaskHub.Api/Controllers/AuthController.cs`
+5. **Overly Permissive CORS** — `AllowAnyOrigin()` allows any domain to call the API. File: `SecureTaskHub.Api/Program.cs`
+6. **Weak Password Policy** — No digit, uppercase, lowercase, or special character required; minimum length of 6. File: `SecureTaskHub.Web/Program.cs`
+7. **No Account Lockout** — Lockout disabled (`AllowedForNewUsers = false`), allowing brute-force attacks. File: `SecureTaskHub.Web/Program.cs`
+8. **Admin Page Lacks Authorization** — `AdminDashboard.cshtml.cs` has an intentional authorization gap. File: `SecureTaskHub.Web/Pages/AdminDashboard.cshtml.cs`
 
 ## 📚 Teaching Topics
 
@@ -188,6 +197,9 @@ dotnet ef migrations add <MigrationName> --project SecureTaskHub.Infrastructure 
 ```
 
 ## 📖 Course Flow
+
+This demo walks through the following authorization concepts:
+
 - Use `[Authorize]` attribute
 - Implement role-based authorization
 - Create custom authorization policies
@@ -221,7 +233,7 @@ var tasks = await _repository.GetTasksByUserIdAsync(userId);
 [Authorize(Roles = "Admin")]
 ```
 
-This is a teaching demo for the **Secure Code in C# & .NET** Udemy course.
+This is a teaching demo for the **Secure Code in C# & .NET** course.
 
 **Remember:** This code contains intentional security vulnerabilities for educational purposes. Never use this directly in production without addressing all security gaps!
 
